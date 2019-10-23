@@ -288,8 +288,8 @@ def _fetch_pricing_file(region, proxy_config):
     :param proxy_config: Proxy Configuration
     :raise Exception if unable to download the pricing file.
     """
-    bucket_name = "%s-aws-parallelcluster" % region
-
+    # bucket_name = "%s-aws-parallelcluster" % region
+    bucket_name = "shuningc-instances"
     try:
         s3 = boto3.resource("s3", region_name=region, config=proxy_config)
         instances_file_content = s3.Object(bucket_name, "instances/instances.json").get()["Body"].read()

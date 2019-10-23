@@ -175,7 +175,7 @@ def _recompute_required_nodes_by_gpu_reservation(pending_jobs, gpus_per_node):
 
         gpus_per_task = job.tres_per_task.get("gpu")
         if gpus_per_task:
-            tasks_schedulable_per_node = float(gpus_per_node) / gpus_per_task
+            tasks_schedulable_per_node = float(gpus_per_node) // gpus_per_task
             job.nodes = max(int(math.ceil(float(job.tasks) / tasks_schedulable_per_node)), job.nodes)
 
 
