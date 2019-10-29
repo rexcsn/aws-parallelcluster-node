@@ -30,11 +30,42 @@ def get_required_nodes(instance_properties, max_size):
 
     slots_requested = []
     nodes_requested = []
+    gpu_slots_requested = []
+    gpu_nodes_requested = []
     for job in pending_jobs:
         slots_requested.append(job.cpus_total)
         nodes_requested.append(job.nodes)
+        gpu_nodes_requested, gpu_slots_requested = _process_gpus_nodes_slots_for_job(
+            job, gpu_nodes_requested, gpu_slots_requested
+        )
+    log.info("list of GPU nodes: {0} \nlist of GPU slots: {1}".format(gpu_nodes_requested, gpu_slots_requested))
 
-    return get_optimal_nodes(nodes_requested, slots_requested, instance_properties)
+    optimal_cpu_nodes = get_optimal_nodes(nodes_requested, slots_requested, instance_properties["slots"])
+    optimal_gpu_nodes = get_optimal_nodes(gpu_nodes_requested, gpu_slots_requested, instance_properties["gpus"])
+    log.info("optimal nodes for CPUs: {0}".format(optimal_cpu_nodes))
+    log.info("optimal nodes for GPUs: {0}".format(optimal_gpu_nodes))
+
+    return max(optimal_cpu_nodes, optimal_gpu_nodes)
+
+
+def _process_gpus_nodes_slots_for_job(job, gpu_nodes_requested, gpu_slots_requested):
+    if job.tres_per_task:
+        gpu_nodes_requested.append(job.nodes)
+        gpu_slots_requested.append(job.tres_per_task["gpu"] * job.tasks)
+        return gpu_nodes_requested, gpu_slots_requested
+    if job.tres_per_node:
+        gpu_nodes_requested.append(job.nodes)
+        gpu_slots_requested.append(job.tres_per_node["gpu"] * job.nodes)
+        return gpu_nodes_requested, gpu_slots_requested
+    if job.tres_per_job:
+        for _ in range(job.tres_per_job["gpu"]):
+            gpu_slots_requested.append(1)
+            gpu_nodes_requested.append(1)
+        return gpu_nodes_requested, gpu_slots_requested
+
+    gpu_nodes_requested.append(job.nodes)
+    gpu_slots_requested.append(0)
+    return gpu_nodes_requested, gpu_slots_requested
 
 
 # get nodes reserved by running jobs

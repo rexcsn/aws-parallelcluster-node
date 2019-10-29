@@ -38,6 +38,7 @@ _SQUEUE_FIELDS = [
     "reason",
     "tres-per-job",
     "tres-per-task",
+    "tres-per-node",
 ]
 SQUEUE_FIELD_STRING = ",".join([field + ":{size}" for field in _SQUEUE_FIELDS]).format(size=SQUEUE_FIELD_SIZE)
 
@@ -207,6 +208,7 @@ class SlurmJob(ComparableObject):
         "REASON": {"field": "pending_reason"},
         "TRES_PER_JOB": {"field": "tres_per_job", "transformation": transform_tres_to_dict},
         "TRES_PER_TASK": {"field": "tres_per_task", "transformation": transform_tres_to_dict},
+        "TRES_PER_NODE": {"field": "tres_per_node", "transformation": transform_tres_to_dict},
     }
 
     def __init__(
@@ -221,6 +223,7 @@ class SlurmJob(ComparableObject):
         pending_reason="",
         tres_per_job=None,
         tres_per_task=None,
+        tres_per_node=None,
     ):
         self.id = id
         self.state = state
@@ -232,6 +235,7 @@ class SlurmJob(ComparableObject):
         self.pending_reason = pending_reason
         self.tres_per_job = tres_per_job or {}
         self.tres_per_task = tres_per_task or {}
+        self.tres_per_node = tres_per_node or {}
 
     @staticmethod
     def reformat_table(table):

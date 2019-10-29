@@ -36,7 +36,7 @@ def get_required_nodes(instance_properties, max_size):
             nodes_requested.append(job.resources_list.nodes_count)
             slots_requested.append(1 * job.resources_list.nodes_count)
 
-    return get_optimal_nodes(nodes_requested, slots_requested, instance_properties)
+    return get_optimal_nodes(nodes_requested, slots_requested, instance_properties["slots"])
 
 
 # get nodes reserved by running jobs
