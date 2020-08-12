@@ -252,12 +252,12 @@ class ClusterManager:
             timestamp_file.write(datetime.now(tz=timezone.utc).strftime(TIMESTAMP_FORMAT))
 
     @staticmethod
-    @retry(stop_max_attempt_number=3, wait_fixed=1000)
+    @retry(stop_max_attempt_number=2, wait_fixed=1000)
     def _get_node_info_with_retry(nodes):
-        return get_nodes_info(nodes, command_timeout=5)
+        return get_nodes_info(nodes, command_timeout=10)
 
     @staticmethod
-    @retry(stop_max_attempt_number=3, wait_fixed=1000)
+    @retry(stop_max_attempt_number=2, wait_fixed=1000)
     def _get_partition_info_with_retry():
         return get_partition_info(command_timeout=5)
 
@@ -294,7 +294,8 @@ class ClusterManager:
         If dynamic, nodes will be power_saved after SuspendTime
         describe_instances call is made with filter on private IPs
         """
-        log.info("Clean up instances associated with nodes in INACTIVE partitions: %s", inactive_nodes)
+        log.info("Clean up instances associated with nodes in INACTIVE partitions")
+        log.debug("Clean up instances associated with nodes in INACTIVE partitions: %s", inactive_nodes)
         self.instance_manager.terminate_associated_instances(
             inactive_nodes, terminate_batch_size=self.sync_config.terminate_max_batch_size
         )
